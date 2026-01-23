@@ -6,23 +6,23 @@ The topic focuses on developing a fine-grained housing price prediction model. T
 The presentation is organized into five parts:
 
 - 1. **Vizualisation of the input data** with an interactive map
-    - *Tools* : geopandas, folium
+    - *Tools* : [geopandas](https://geopandas.org/en/stable/docs/user_guide.html), [folium](https://python-visualization.github.io/folium/latest/user_guide.html)
 - 2. **Pre-processing**: cleaning inconsistent input data, including the treatment of outliers and dataset preparation
-    - *Tools* : pandas / polars
+    - *Tools* : [pandas](https://pandas.pydata.org/docs/user_guide/index.html) / [polars](https://docs.pola.rs/)
 - 3. **Training a ML model to predict housing prices** : 
     - *Tools*:
-        - **Scikit-learn** Python framwork for the training 
-        - Insee working document on bagging ans boosting methods [link](https://inseefrlab.github.io/DT_methodes_ensemblistes/) 
+        - [**Scikit-learn**](https://scikit-learn.org/stable/user_guide.html) Python framwork for the training 
+        - [Insee working document](https://inseefrlab.github.io/DT_methodes_ensemblistes/) on bagging ans boosting methods 
         - python package crospint
     - *Goal* : 
         - create both training and test set
-        - train ML model (bagging / boosting) with scikit-learn
+        - train ML model (bagging / boosting) with [scikit-learn](https://scikit-learn.org/stable/modules/ensemble.html#)
         - train ML model with **crospint**
         - evaluate model with metrics (see Olivier methods - OOB error)
         - models comparisons
 - 4. **From training to production** : 
-    - Monitoring the model with **MLFlow** (save all *runs* ie. models and associated metrics)
-    - build an API with **FastAPI** to get the model forecasts and other high level considerations to have a production ready environment. It would allow to do the inference directly to get the prediction price from the API (for example : you would send 80m2 at 88 avenue Verdier Montrouge, 2 bedrooms, etc and you would get the predicted flat price).
+    - Monitoring the model with [**MLFlow**](https://mlflow.org/docs/latest/ml/) (save all *runs* ie. models and associated metrics)
+    - build an API with [**FastAPI**](https://fastapi.tiangolo.com/tutorial/) to get the model forecasts and other high level considerations to have a production ready environment. It would allow to do the inference directly to get the prediction price from the API (for example : you would send 80m2 at 88 avenue Verdier Montrouge, 2 bedrooms, etc and you would get the predicted flat price).
     - Visualize the predicted price and the underlying synthetic data on a map.
     - *Tools*:
         - **MLFlow**
