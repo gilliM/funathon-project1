@@ -1,5 +1,5 @@
 ---
-title: "Project 1"
+title: "Project 1: predicting housing prices"
 lang: en-US
 author: 
 - name: Daffy Duck
@@ -23,7 +23,7 @@ editor_options:
   <thead>
     <tr>
       <th>Technical level</th>
-      <th>Enjeux</th>
+      <th>Tasks</th>
     </tr>
   </thead>
   <tbody>
