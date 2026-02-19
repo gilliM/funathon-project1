@@ -214,3 +214,12 @@ Add distance to Seine ?
 Plot the results ? 
 
 stat des with pandas to select variables : cf. stat_des75_pandas
+
+{'idmutation':'idtrans, 'datemut':'datetrans', 'anneemut':'yeartrans', 'moismut':'monthtrans', 'idnatmut':'natidtrans', 'libnatmut':'typetrans',
+       'valeurfonc':'price', 'dteloc':'typeass', 'jannath':'yearbuild', 'ccodep':'depcode', 'depcom':'zipcode', 'x', 'y',
+       'distance_ltm':'dist_tosea', 'distance_ltm_corr':'dist_toseacorr', 'dnbniv':'numbfloors', 'dnbbai':'numbbat', 'dnbdou':'numbshow',
+       'dnblav':'numbsinc', 'dnbwc':'numbwc', 'dnbppr':'numbroom', 'dnbsam':'numbeatr', 'dnbcha':'numbslr', 'dnbcu8':'numbkit8', 'dnbcu9':'numbkit9',
+       'dnbsea', 'dnbann', 'dnbpdc', 'dsupdc', 'geaulc', 'gelelc', 'gesclc',
+       'ggazlc', 'gasclc', 'gchclc', 'gvorlc', 'gteglc', 'dniv', 'dcntsol',
+       'dcntagri', 'dcntnat', 'nb_garages', 'nb_piscines', 'nb_terrasses',
+       'nb_greniers', 'nb_caves', 'nb_autresdep', 'price_sqm', 'dnivrel'}
