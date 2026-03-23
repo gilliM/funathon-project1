@@ -72,9 +72,18 @@ Every step is independant from the other : one will be able to start from the ne
 When you are on this webpage, you should see something similar to this image once you're logged in. 
 To change the language, you can do so on the bottom right part of the webpage (see the orange arrow on the screen shot below).
 
-![Home page of <https://datalab.sspcloud.fr/>](onyxia_home.ng)
+![Home page of <https://datalab.sspcloud.fr/>](onyxia_home.png)
 
 -   You also need to have a Github account. Your Github credentials (username, email and token) should be registered in your [Insee's Onyxia](https://datalab.sspcloud.fr/) account in the My account/Git tab.  
+
+
+## Fork the project with `Git` {{< fa brands git-alt >}}
+
+First, you need to fork the funathons's project on Github by clicking on [this link](https://github.com/AIML4OS/funathon-project1/fork). 
+For convenience, **please not to change the repository name**. 
+Write down the owner's name `OWNER_NAME` for the next step.  
+
+![Forking a github project](github_fork.png)
 
 ## Open a VS Code on SSPCloud / Onyxia
 
@@ -84,10 +93,12 @@ To change the language, you can do so on the bottom right part of the webpage (s
 To launch in the project, open a VS Code service with the following button : <a href="https://datalab.sspcloud.fr/launcher/ide/vscode-python?name=AIML4OS-funathon-project1&version=2.5.2&s3=region-79669f20&git.cache=«5000»&networking.user.enabled=true&autoLaunch=true" target="_blank" rel="noopener"><img src="https://custom-icon-badges.demolab.com/badge/SSP%20Cloud-Launch_with_VSCode-blue?logo=vsc&amp;logoColor=white" alt="Onyxia"/></a>.
 :::
 
-Create a VScode-Python service on SSP Cloud. In the service, open a terminal by clicking on {{< fa brands fa-bars >}}, then `Terminal > New Terminal`. Clone the project repository with:
+Create a VScode-Python service on SSP Cloud.
+In the service, open a terminal by clicking on {{< fa brands fa-bars >}}, then `Terminal > New Terminal`.
+Clone the project repository with the following command after replacing `OWNER_NAME` with your name on Github from the previous step: 
 
 ```{bash}
-git clone https://github.com/AIML4OS/funathon-project1.git
+git clone https://$GIT_PERSONAL_ACCESS_TOKEN@github.com/OWNER_NAME/funathon-project1.git
 ```
 
 The project has the following structure :
