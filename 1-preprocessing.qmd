@@ -401,7 +401,7 @@ df = trans.drop(columns=[
 
 ```{python}
 # Printing all rows containing at least one NA
-df[df.isna().any(axis=1)]
+print(df[df.isna().any(axis=1)])
 
 # Filtering NA values
 df = df.dropna()
