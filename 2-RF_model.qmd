@@ -165,19 +165,16 @@ We will implement a function to plot the OOB error as a function of the number o
 #| code-overflow: scroll
 #| eval: false
 
-df_sampled = df.sample(frac=0.1, axis=0, random_state= RANDOM_STATE)
+df_sub = df.sample(frac=0.1, axis=0, random_state= RANDOM_STATE)
 
 # Split features / target
-X = df.drop(columns="valfonc_m2")  # X must contain only the features we'll learn from
-y = df["valfonc_m2"]  # target must be a dataframe with 1 column
-
-X_sub, X_sub_test, y_sub, y_sub_test = train_test_split(
-    X, y, test_size=0.25, random_state=RANDOM_STATE
-)
+X_sub = df_sub.drop(columns="valfonc_m2")  # X must contain only the features we'll learn from
+y_sub = df_sub["valfonc_m2"]  # target must be a dataframe with 1 column
 
 ```
 
 2.  Train multiple RF models with varying numbers of trees, using `warm_start=True` to avoid retraining all trees from scratch at each iteration. Keep the OOB error calculated in a list.
+
 
 ```{python}
 #| code-fold: true
@@ -192,17 +189,21 @@ min_estimators=5
 max_estimators=150
 
 rf = RandomForestRegressor(
-    oob_score=True,
     warm_start=True,
     **rf_params,
 )
+
+rf_pipeline = Pipeline([
+    ('preprocessing', preprocessor),
+    ('random_forests', rf)
+])
 
 oob_errors = []
 warnings.filterwarnings("ignore", message="Some inputs do not have OOB scores")
 # filterwarnings remove some warnings messages
 for n in range(min_estimators, max_estimators, 10):
-    rf.set_params(n_estimators=n)
-    rf.fit(X_sub, y_sub)
+    rf_pipeline["random_forests"].set_params(n_estimators=n)
+    rf_pipeline.fit(X_sub, y_sub)
     if metric == "r2":
         oob_errors.append((n, 1 - rf.oob_score_))
     elif metric == "neg_root_mean_squared_error":
@@ -223,7 +224,7 @@ warnings.resetwarnings()
     You need to :
 
     -   subsample the inputs `X` and `y`, with a parameter `subsample` ;
-    -   check if you have no type problems with data (for example with `Timestamp` column)
+    -   check if you have no type problems with data (for example with `Timestamp` column) and why using the rf_pipeline helps ; 
     -   train the RF model from 15 to 150 trees (with a gap at 5) with `RandomForestRegressor` with the parameter `warm_start=True`;
     -   select which metric you use to calculate OOB error estimator
     -   plot the convergence of OOB error as a function of number of trees
@@ -241,7 +242,7 @@ rf_params = {
     "max_features": "sqrt",
     "min_samples_split": 5,
     "min_samples_leaf": 10,
-    "random_state": 42,
+    "random_state": RANDOM_STATE,
 }
 
 def rf_error_oob_plot(X_train,
@@ -265,29 +266,11 @@ def rf_error_oob_plot(X_train,
 
 # --- Sous-échantillonnage stratifié sur la cible ---
 
-    y_arr = np.asarray(y_train)
-    bins = np.unique(np.quantile(y_arr, np.linspace(0, 1, 100)))
-    strata = np.digitize(y_arr, bins[1:-1])
+    df_sub = df.sample(frac=subsample, axis=0, random_state= RANDOM_STATE)
 
-    rng = np.random.default_rng(rf_params.get("random_state"))
-    idx = np.concatenate([
-        rng.choice(
-            np.where(strata == s)[0],
-            size=max(1, round((strata == s).sum() * subsample)),
-            replace=False,
-        )
-        for s in np.unique(strata)
-    ])
-
-    X_sub = X_train[idx] if isinstance(X_train, np.ndarray) else X_train.iloc[idx]
-    y_sub = y_arr[idx]
-
-    # on traite le Timestamp présent dans les features
-    X_sub["datemut"] = date_to_days(X_sub["datemut"], pd.Timestamp('2010-01-01 00:00'))
-    X_sub = _encode_for_rf(X_sub)
-
-    print(f"Sous-échantillon : {len(idx):,} / {len(y_arr):,} obs "
-          f"({100 * len(idx) / len(y_arr):.1f}%)")
+    # Split features / target
+    X_sub = df_sub.drop(columns="valfonc_m2")  # X must contain only the features we'll learn from
+    y_sub = df_sub["valfonc_m2"]  # target must be a dataframe with 1 column
 
     # --- Entraînement incrémental avec warm_start ---
     rf = RandomForestRegressor(
@@ -296,11 +279,16 @@ def rf_error_oob_plot(X_train,
         **rf_params,
     )
 
+    rf_pipeline = Pipeline([
+        ('preprocessing', preprocessor),
+        ('random_forests', rf)
+    ])
+
     oob_errors = []
     warnings.filterwarnings("ignore", message="Some inputs do not have OOB scores")
     for n in range(min_estimators, max_estimators, 5):
-        rf.set_params(n_estimators=n)
-        rf.fit(X_sub, y_sub)
+        rf_pipeline["random_forests"].set_params(n_estimators=n)
+        rf_pipeline.fit(X_sub, y_sub)
         if metric == "r2":
             oob_errors.append((n, 1 - rf.oob_score_))
         elif metric == "neg_root_mean_squared_error":
