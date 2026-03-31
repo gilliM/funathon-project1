@@ -742,7 +742,7 @@ requires-dist = [
     { name = "plotly", specifier = ">=6.5.2" },
     { name = "plotnine", specifier = ">=0.15.3" },
     { name = "polars", specifier = ">=1.37.1" },
-    { name = "pyarrow", specifier = ">=23.0.0" },
+    { name = "pyarrow", specifier = ">=23.0.1" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "tabulate", specifier = ">=0.9.0" },
