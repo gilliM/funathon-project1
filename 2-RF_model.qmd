@@ -52,7 +52,7 @@ For more information, you can read the paragraph on RF hyperparameters [here](ht
 
         <summary>Click to view a hint</summary>
 
-        Remember : in the [Preprocessing section](1-preprocessing.qmd), we created the training sets `X_train` and `y_train` and the `model` and `rf_pipeline`.
+        Remember : in the [Preprocessing section](1-preprocessing.qmd), we created the training sets `X_train` and `y_train`.
 
         </details>
 
@@ -160,7 +160,7 @@ For convenience and pedagogical reasons, we are still working on a subset of the
 In the real world, we would do this step with the pipeline defined at the end of the [pre-processing part](1-preprocessing.qmd).  
 :::
 
-1.  Subsample a fraction ( `0.1` ) of the `df` dataset to reduce computation time and define X_sub and y_sub. To stick to the characteristics of the target, stratify the sampling to the target's distribution. 
+1.  Subsample a fraction ( `0.1` ) of the `df` dataset to reduce computation time and define X_sub and y_sub. To stick to the characteristics of the target, stratify the sampling to the target's distribution thanks to [pandas' `qcut` function](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.qcut.html#pandas.qcut). 
 
 ```{python}
 #| code-fold: true
@@ -186,7 +186,7 @@ X_sub = X_train.filter(items=y_sub.index, axis=0 )  # sampling X_train
 
     <summary>Click to view a hint</summary>
 
-        As a hint, you can go to the documentation page on OOB error [here](https://scikit-learn.org/stable/auto_examples/ensemble/plot_ensemble_oob.html) and update the classifier (`clf` in the scikit learn example) to our `rf_pipeline` with what we have seen before to access `oob_score`. 
+        As a hint, you can go to the documentation page on OOB error [here](https://scikit-learn.org/stable/auto_examples/ensemble/plot_ensemble_oob.html). 
         
         If you need, here is the code to calculate and store the OOB score. 
         
@@ -255,7 +255,6 @@ warnings.resetwarnings()
     You need to :
 
     -   subsample the inputs `X` and `y`, with a parameter `subsample` ;
-    -   check if you have no type problems with data (for example with `Timestamp` column) and why using the rf_pipeline helps ; 
     -   train the RF model from 15 to 150 trees (with a gap at 5) with `RandomForestRegressor` with the parameter `warm_start=True`;
     -   select which metric you use to calculate OOB error estimator
     -   plot the convergence of OOB error as a function of number of trees
@@ -296,7 +295,7 @@ def rf_error_oob_plot(X_train,
         metric : 'r2',  'rmse' or 'mae'
     """
 
-# --- Stratified sampling of training set ---
+    # --- Stratified sampling of training set ---
     y_train_df = pd.DataFrame(y_train)
     y_train_df["quantile"] = pd.qcut(y_train_df["valfonc_m2"], q=100, labels=False) ## allows to discretly cut along quantiles
     y_sub = y_train_df.groupby("quantile").sample(frac=0.1, random_state= RANDOM_STATE)  # sampling by quantile 
@@ -304,7 +303,7 @@ def rf_error_oob_plot(X_train,
     y_sub = y_sub["valfonc_m2"] # converting to pandas.series
     X_sub = X_train.filter(items=y_sub.index, axis=0 )  # sampling X_train
 
-    # --- 
+    # --- Training with warm start ---
     rf = RandomForestRegressor(
         oob_score=True,
         warm_start=True,
@@ -313,7 +312,7 @@ def rf_error_oob_plot(X_train,
 
     oob_scores = []
     warnings.filterwarnings("ignore", message="Some inputs do not have OOB scores")
-    for n in range(min_estimators, max_estimators, 10):
+    for n in range(min_estimators, max_estimators, 5):
         rf.set_params(n_estimators=n)
         rf.fit(X_sub, y_sub)
         if metric == "r2":
@@ -360,7 +359,7 @@ oob_error_ntrees
 
 **Cross-validation** is a key step in model training : it is a technique used to evaluate the model's ability to generalize to unseendata, by splitting the dataset into multiple folds (typically 5) and iteratively using each fold as a validation set while the remaining folds are used for training. It also allows you to compare different set of hyperparameters and select the configuration that yields the best predictive performance.
 
-> Note : In the Preprocessing section, you saw how to build a Pipeline. In this exercise, we will use Pipeline again. The first exercise didn't use it to let you practice scikit-learn tools documented [here](https://scikit-learn.org/stable/modules/compose.html#pipelines-and-composite-estimators).
+> Note : In the Preprocessing section, you saw how to build a Pipeline. In this exercise, we will use a Pipeline again. The first exercise didn't use it to let you practice scikit-learn tools documented [here](https://scikit-learn.org/stable/modules/compose.html#pipelines-and-composite-estimators).
 
 0.  For convenience, we dropped the features `dteloc`, `dtemut` and trained our model on absolute prices and not on the transformed ones. Get them back and define the new training and testing datasets `X_train, X_test, y_train, y_test`.
 
