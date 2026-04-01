@@ -12,7 +12,7 @@ We saw how to train a **Random Forests** in the [previous section](2-RF_model.qm
 
 ## Concepts of Gradient Boosting
 
-**Gradient boosting** 
+<!-- **Gradient boosting** 
 
 So, RF rely on four key elements : building **aggregated regression or classification trees**, with a **randomized subset of features** and a ***bootstrap*** **sample** - a random sample drawn with or without replacement from the original dataset, typically of the same size.
 
@@ -23,26 +23,15 @@ So, RF rely on four key elements : building **aggregated regression or classific
 -   **Data sample rate** : useful to speed up training on large dataset, otherwise keep it close to `1.0`;
 -   **Minimum number of observation per leaf** (terminal node) : setting a higher value can reduce training time, generally without any performance loss.
 
-For more information, you can read the paragraph on RF hyperparameters [here](https://inseefrlab.github.io/DT_methodes_ensemblistes/chapters/chapter2/4-boosting.html)
+For more information, you can read the paragraph on RF hyperparameters [here](https://inseefrlab.github.io/DT_methodes_ensemblistes/chapters/chapter2/4-boosting.html) -->
 
 :::: {.callout-tip collapse="false" icon="false"}
-## <i class="bi bi-book"></i> Exercice 4: Train your first Gradient Boosting Forest model
+## <i class="bi bi-book"></i> Exercice 4: Train your first Gradient Boosting model
 
-1.  Using the `RandomForestRegressor` class and its [scikit-learn documentation page](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html#sklearn.ensemble.HistGradientBoostingRegressor), define a basic model with the following hyperparameters :
+1.  Using the `HistGradientBoostingRegressor` class and its [scikit-learn documentation page](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html#sklearn.ensemble.HistGradientBoostingRegressor), define a basic model with default hyperparameters :
 
-    -   n_estimators=50
+    Train the model with the full pipeline (it should take about less than a minute to train).
 
-    -   max_features="sqrt"
-
-    -   min_samples_leaf=10
-
-    Train the model with the remaining non transformed target (it should take about 5 minutes to train).
-
-    As it's only a first step we chose to simplify the exercise. First, we will drop the `datemut` and `dteloc` features. Secondly, we will work with the **non transformed target** (i.e.price per square meter) and not use the transformed target (i.e. log of the price per square meter) defined at the end of the pre-processing.
-
-    We will come back to this later on and chain it with the preprocessing steps.
-
-    > **Note: All parameters of RandomForestRegressor have a default value - you only need to explicitly pass the ones you wish to override.**
 
     <details>
 
@@ -59,11 +48,11 @@ For more information, you can read the paragraph on RF hyperparameters [here](ht
 #| eval: false
 from sklearn.ensemble import HistGradientBoostingRegressor
 
-# create RandomForestRegressor instance with default hyperparameters
+# create HistGradientBoostingRegressor instance with default hyperparameters
 gb = HistGradientBoostingRegressor()
 
 # Defining train and test sets
-X = df.drop(columns=["valfonc_m2", "datemut", "dteloc"])  
+X = df.drop(columns="valfonc_m2")  
 y = df["valfonc_m2"]  
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
@@ -71,55 +60,59 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=RANDOM_STATE
 )
 
+gb_pipeline = Pipeline([
+    ('preprocessing', preprocessor),
+    ('GB', gb)
+])
+
+model_gb = TransformedTargetRegressor(
+    regressor=gb_pipeline,
+    transformer=y_transformer
+)
+
 # Train the model
-gb.fit(X_train, y_train)
+model_gb.fit(X_train, y_train)
+
 ```
 
-2.  Print the `Out-of-Bag` error *(the concept of OOB error will be covered in the next exercise)*.
+2.  Calculate the accuracy of this first model on the test set. What does scikit learn consider as the default score for this type of model ? 
 
-::: callout-important
-Scikit-learn distinguishes **parameters** from **fitted attributes**. Here, to access the attributes sent back by the training phase listed in the documentation, we need to search for the `oob_score_` attributes of the random forest.
-:::
 
 ```{python}
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
 #| eval: false
-
-rf.oob_score_
+print(f'Default score : {model_gb.score(X_test, y_test):.3f}')  # default is R²
 ```
 
-3.  Now, calculate the accuracy of the model on the test set - that is, how far off the prediction are from the actual values.
-
-    > Note : This is just an illustration of the evaluation process. More details on metrics will be covered in the [dedicated section](3-metrics.qmd).
+3.  In scikit learn's documentation on the [score variable](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html#sklearn.ensemble.HistGradientBoostingRegressor.score), check other types of score scikit learn can perform. Print 3 other metrics. Check that the default score calculated before is the R².
 
     <details>
 
     <summary>Click to view a hint</summary>
-
-    You can use the `mean_squared_error` function from the `sklearn.metrics` module.
-
-    Remember to use the test set for the evaluation, not the training set.
+    The list of metrics should get you [here](https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-string-names) where all the metrics are listed. 
 
     </details>
 
 ```{python}
-#| code-fold: true
-#| code-summary: See the solution
-#| code-overflow: scroll
-#| eval: false
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_percentage_error, mean_absolute_error, mean_squared_error, r2_score
 
-# Predictions on train set
-y_pred = rf.predict(X_test)
+# To calculate other scores 
+y_pred = model_gb.predict(X_test)
 
-# Print the error
-print(mean_squared_error(y_test, y_pred))
+# Evaluation
+print(f'MAE : {mean_absolute_error(y_test, y_pred):.3f}')
+print(f'MAPE : {mean_absolute_percentage_error(y_test, y_pred):.3f}')
+print(f'MSE : {mean_squared_error(y_test, y_pred):.3f}')
+print(f'RMSE : {r2_score(y_test, y_pred):.3f}')
 
 ```
 
-Congrats 🥳! You have trained your first RF model. Now, try to find the best hyperparameters to minimize the final predicted error of the model.
+
+
+Congrats 🥳! You have trained your first gradient boosting model. Now, try to find the best hyperparameters to minimize the final predicted error of the model.
+
 ::::
 
 :::::: {.callout-tip collapse="false" icon="false"}
