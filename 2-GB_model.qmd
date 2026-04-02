@@ -88,30 +88,39 @@ for split, X, y in [("Train", X_train, y_train), ("Test", X_test, y_test)]:
 
 ## Key Hyperparameters of Gradient Boosting
 
-The gradient boosting algorithm has many hyperparameters, but the literature identifies a small set that most strongly influence model performance. We focus on these four groups:
+The gradient boosting algorithm has many hyperparameters, but the literature identifies a small set that most strongly influence model performance. Gradient-boosting hyperparameters are also coupled, so we cannot set them one after the other anymore. The important hyperparameters are max_iter, learning_rate, and max_depth or max_leaf_nodes (as previously discussed random forest). We recommend reading the scikit-learn MOOC on tuning [here](https://inria.github.io/scikit-learn-mooc/python_scripts/ensemble_hyperparameters.html#histogram-gradient-boosting-decision-trees) for more details. 
+Here for this tutorial, we focus on these four groups:
 
-**1. Learning rate (`learning_rate`)**
+**1. Number of trees (`max_iter`)**
 
-The learning rate $\eta \in (0, 1]$ scales the contribution of each tree to the ensemble. A lower value makes learning more gradual — each tree corrects errors more cautiously — which typically reduces overfitting but requires more trees to converge. A higher value speeds up training but can cause instability and overfitting. Typical values range from `0.01` to `0.3`. The learning rate and the number of trees are tightly linked and should be optimised together.
-
-**2. Number of trees (`max_iter`)**
-
-Unlike a random forest, the performance of a gradient boosting model on the **training set grows continuously** as more trees are added — it never plateaus. If the number of trees is too large, the model will overfit. If it is too small, it will underfit. The optimal number of trees therefore depends on the learning rate: a lower learning rate requires more trees to achieve equivalent performance.
+`max_iter`, similarly to the n_estimators hyperparameter in random forests, controls the number of trees in the final estimator. **With gradient boosting, if you add a tree, you will get closer to the target.** Unlike a random forest, the performance of a gradient boosting model on the **training set grows continuously** as more trees are added — it never plateaus. But if the number of trees is too large, the model will overfit : your score on the training set will get close to 100% but the score on the test set will not increase. If the number of trees is too small, the model will underfit. The optimal number of trees therefore depends on the learning rate: a lower learning rate requires more trees to achieve equivalent performance. However, 
 
 > In `HistGradientBoostingRegressor`, the number of trees is controlled by `max_iter` (default: 100).
 
-**3. Tree complexity (`max_leaf_nodes`, `max_depth`)**
 
-These parameters control the complexity of each individual tree (the *weak learner*). `max_leaf_nodes` sets the maximum number of terminal leaves; `max_depth` sets the maximum depth. Shallow trees (few leaves, low depth) reduce overfitting but limit the ability of each tree to capture interactions between variables. Deeper trees are more expressive but risk overfitting and slow down training. In gradient boosting, trees are typically kept shallow — the model's power comes from combining many of them, not from the complexity of each one.
+**2. Tree complexity (`max_leaf_nodes`, `max_depth`)**
+
+These parameters control the complexity of each individual tree (the *weak learner*). `max_leaf_nodes` sets the maximum number of terminal leaves; `max_depth` sets the maximum depth. Shallow trees (few leaves, low depth) reduce overfitting but limit the ability of each tree to capture interactions between variables. Deeper trees are more expressive but risk overfitting and slow down training. **In gradient boosting, trees are typically kept shallow (typically between 3 to 8 levels, equivalent to 8 (2^3) to 256 (2^8) leaves ) — the model's power comes from combining many of them, not from the complexity of each one.**  Therefore, it can be beneficial to increase `max_iter` if `max_depth` is low.
 
 > In `HistGradientBoostingRegressor`, the leaf-wise growth strategy is used, making `max_leaf_nodes` the primary parameter (default: 31).
 
+**3. Learning rate (`learning_rate`)**
+
+The learning rate $\eta \in (0, 1]$ scales the contribution of each tree to the ensemble. A lower value makes learning more gradual — each tree corrects errors more cautiously — which typically reduces overfitting but requires more trees to converge. A higher value speeds up training but can cause instability and overfitting. Typical values range from `0.01` to `0.3`. The learning rate and the number of trees are tightly linked.
+
+> In `HistGradientBoostingRegressor`, the default learning-rate is 0.1.
+
 **4. Regularisation (`l2_regularization`, `min_samples_leaf`)**
 
-- `l2_regularization`: applies an L2 penalty to the leaf weights, shrinking them towards zero. This reduces the influence of outliers and limits overfitting. Default value is `0` (no regularisation), but a positive value is often recommended in practice.
-- `min_samples_leaf`: the minimum number of observations that a terminal leaf must contain. Higher values prevent the model from creating very small, potentially spurious leaves and act as an implicit regulariser.
+- `l2_regularization`: applies an L2 penalty to the leaf weights, shrinking them towards zero. This reduces the influence of outliers and limits overfitting.
 
-For more information, you can read the detailed description of these hyperparameters [here](https://inseefrlab.github.io/DT_methodes_ensemblistes/chapters/chapter3/3-guide_usage_GB.html#sec-hyperparam-gb).
+> In `HistGradientBoostingRegressor`, default value is `0` (no regularisation), but a positive value is often recommended in practice.
+
+- `min_samples_leaf`: the minimum number of observations that a terminal leaf must contain. Higher values prevent the model from creating very small leaves and thus from overfitting.
+
+> In `HistGradientBoostingRegressor`, default value is `20`.
+
+For more information, you can read the detailed description of these hyperparameters [here](https://inseefrlab.github.io/DT_methodes_ensemblistes/chapters/chapter3/3-guide_usage_GB.html#sec-hyperparam-gb) or on scikit learn's documentation (for the [`HistGradientBoostingRegressor` function](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingRegressor.html) or the [MOOC material](https://inria.github.io/scikit-learn-mooc/python_scripts/ensemble_hyperparameters.html)).
 
 ## Tuning Gradient Boosting Hyperparameters
 
@@ -163,7 +172,7 @@ def gb_scores(model, X_train, y_train, X_test, y_test):
     return results
 ```
 
-2.  Train one `HistGradientBoostingRegressor` for each value in `learning_rates = [0.05, 0.1, 0.15, 0.2]`. For each model, enable **early stopping** by setting `early_stopping=True`, `validation_fraction=0.1` and `n_iter_no_change=20`, and set `max_iter=1000` so that the algorithm has room to converge. Record the train and test scores using the function defined above and store the results. Computation should last about 7 minutes. 
+2.  Train one `HistGradientBoostingRegressor` for each value in `learning_rates = [0.05, 0.1, 0.2, 0.3, 0.5]`. Create a `tune_lr` function which takes a list of learning rates as input and train each time a model. For each model, enable **early stopping** by setting `early_stopping=True`, `validation_fraction=0.1` and `n_iter_no_change=20`, and set `max_iter=1000` so that the algorithm has room to converge. Record the train and test scores using the function defined above and return the results. Computation should last about 7 minutes. 
 
     ::: {.callout-tip collapse="true" title="Click to view a hint"}
     You can iterate over `learning_rates` and build a results list of the form:
@@ -190,12 +199,12 @@ def gb_scores(model, X_train, y_train, X_test, y_test):
 from sklearn.ensemble import HistGradientBoostingRegressor
 
 
-def diff_lr(learning_rates: list):
+def tune_lr(learning_rates: list):
     lr_results = []
     for lr in learning_rates:
         model = HistGradientBoostingRegressor(
             learning_rate=lr,
-            max_iter=500,
+            max_iter=1000,
             early_stopping=True,
             validation_fraction=0.1,
             n_iter_no_change=20,
@@ -369,7 +378,7 @@ print(f"\nBest combination: max_leaf_nodes={BEST_LEAVES}, "
 #| code-summary: See the solution
 #| code-overflow: scroll
 #| eval: false
-l2_values = [0.0, 0.1, 0.5, 1.0, 5.0]
+l2_values = [0.0, 0.1, , 0.3, 0.5, 0.8]
 reg_results = []
 
 for l2 in l2_values:
@@ -460,7 +469,7 @@ gb_pipeline = Pipeline([
 
 gb_model = TransformedTargetRegressor(
     regressor=gb_pipeline,
-    transformer=y_transformer
+    transformer=y_transformer  # same targettransformer as defined in preprocessing section
 )
 
 gb_model.fit(X_train, y_train)
