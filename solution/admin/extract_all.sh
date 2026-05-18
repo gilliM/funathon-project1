@@ -1,9 +1,9 @@
 #!/bin/bash
 FILE_1="intermediate_solutions/1_main.py"
 mkdir -p $(dirname "$FILE_1")
-FILE_2A="intermediate_solutions/2a_main.py"
+FILE_2A="intermediate_solutions/2a_GB.py"
 mkdir -p $(dirname "$FILE_2A")
-FILE_2B="intermediate_solutions/2b_main.py"
+FILE_2B="intermediate_solutions/2b_RF.py"
 mkdir -p $(dirname "$FILE_2B")
 FILE_3="intermediate_solutions/3_main.py"
 mkdir -p $(dirname "$FILE_3")

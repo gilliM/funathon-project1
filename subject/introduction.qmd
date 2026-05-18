@@ -30,6 +30,15 @@ editor_options:
       <td><span class="level-button level-beginner">Beginner</span></td>
       <td>The whole project is written for beginners, relying on clues and solutions if needed.</td>
     </tr>
+    <tr>
+      <td><span class="level-button level-intermediate">Intermediate</span></td>
+      <td>Try to complete the exercises without checking the answers.</td>
+    </tr>
+    <tr>
+      <td><span class="level-button level-expert">Expert</span></td>
+      <td>Enhance the pipeline and improve results: better-tuned hyperparameters, implementation of additional models (e.g. LightGBM, XGBoost, Crospint), and the development of a UI with an interactive map for price predictions, etc...
+      </td>
+    </tr>
   </tbody>
 </table>
 ```
@@ -123,7 +132,7 @@ First, you need to fork the funathons's project on Github by clicking on [this l
 ## Open a VS Code on SSPCloud
 
 
-To launch the project, open a VS Code service with the following button: <a href="https://datalab.sspcloud.fr/launcher/ide/vscode-python?name=AIML4OS-funathon-project1&version=2.5.5&s3=region-79669f20&git.cache=«5000»&git.repository=«https%3A%2F%2Fgithub.com%2FAIML4OS%2Ffunathon-project1.git»&networking.user.enabled=true&autoLaunch=true" target="_blank" rel="noopener"><img src="https://custom-icon-badges.demolab.com/badge/SSP%20Cloud-Launch_with_VSCode-blue?logo=vsc&amp;logoColor=white" alt="Onyxia"/></a>.
+To launch the project, open a VS Code service with the following button: <a href="https://datalab.sspcloud.fr/launcher/ide/vscode-python?name=AIML4OS-funathon-project1&version=2.5.5&s3=region-79669f20&git.cache=«5000»&networking.user.enabled=true&autoLaunch=true" target="_blank" rel="noopener"><img src="https://custom-icon-badges.demolab.com/badge/SSP%20Cloud-Launch_with_VSCode-blue?logo=vsc&amp;logoColor=white" alt="Onyxia"/></a>.
 
 In the VS Code service, open a terminal (`CTRL` + `MAJ` + `C` or in the file menu go to `Terminal > New Terminal`). Clone the project repository with the following command after replacing `OWNER_NAME` with your name on Github from the previous step:
 
