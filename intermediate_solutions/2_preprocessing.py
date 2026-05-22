@@ -5,6 +5,8 @@
 import duckdb
 import os
 
+RANDOM_STATE = 202506
+
 # Create a non-persistent connection (the database exists only while the connection is alive and disappears when it is closed)
 con = duckdb.connect(database=":memory:")
 
@@ -94,9 +96,6 @@ trans = trans[mask].reset_index(drop=True)
 n1 = trans.shape[0]
 
 print(f"{n1} rows after deterministic and statistic filtering")
-
-
-# %%
 print(f'Applying these filters methods has dropped about {((n0 - n1)/n0)*100:.2f} % of the transactions.')
 
 # %%
@@ -111,6 +110,7 @@ df = trans.drop(columns=[
 
 
 # %%
+
 # Printing all rows containing at least one NA
 print(df[df.isna().any(axis=1)])
 
@@ -159,9 +159,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 ## Exercice 3: The scikit-learn pipeline
 # %%
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
-
 
 def date_to_days(X: pd.Series, ref_date: pd.Timestamp):
     # converts a date to a difference to ref_date :
@@ -172,6 +169,11 @@ def date_to_days(X: pd.Series, ref_date: pd.Timestamp):
     diff_dt = diff_dt.to_numpy().reshape(-1, 1)
 
     return diff_dt
+
+
+# %%
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
 
 date_transformer = FunctionTransformer(
     date_to_days,

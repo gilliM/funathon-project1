@@ -48,6 +48,8 @@ You can have a look at the [official `duckdb` documentation](https://duckdb.org/
 import duckdb
 import os
 
+RANDOM_STATE = 202506
+
 # Create a non-persistent connection (the database exists only while the connection is alive and disappears when it is closed)
 con = duckdb.connect(database=":memory:")
 ```
@@ -142,27 +144,28 @@ We will transform a few features for the training part. It will enhance the qual
 
     :::
 
-    ```{python}
-    #| code-fold: true
-    #| code-summary: See the solution
-    #| code-overflow: scroll
+```{python}
+#| code-fold: true
+#| code-summary: See the solution
+#| code-overflow: scroll
 
-    trans["price_sqm"] = trans["price"] / trans["farea"]
-    ```
+trans["price_sqm"] = trans["price"] / trans["farea"]
+```
 
 2.  **Check if the target must be transformed**
 
     For better prediction quality, you need to have a look at the distribution of your target variable and check whether it is roughly normal and approximately symmetric. If the distribution is not roughly normal or if it has a lot of extreme values, the prediction may be less accurate for certain ranges of values, and some extreme values will have too much influence on the final model.
 
+
 ::: {.callout-note title="Another way to load the data"}
 
-    The reason why extreme values are detrimental to model quality differs depending on the model used :
+The reason why extreme values are detrimental to model quality differs depending on the model used :
 
-    -   For random forests, the final prediction is the mean value of Y across all observations contained in the leaf. Since the mean is not a robust statistic, extreme values can strongly influence the final prediction associated with that leaf.
-    -   For gradient boosting, extreme values can lead to overfitting. Since gradient boosting iteratively reduces residuals by adding new trees, observations with very large residuals - often caused by extreme values - can have a disproportionate influence on the model.
+-   For random forests, the final prediction is the mean value of Y across all observations contained in the leaf. Since the mean is not a robust statistic, extreme values can strongly influence the final prediction associated with that leaf.
+-   For gradient boosting, extreme values can lead to overfitting. Since gradient boosting iteratively reduces residuals by adding new trees, observations with very large residuals - often caused by extreme values - can have a disproportionate influence on the model.
 :::
 
-    The best way to look at the distribution of the target is to plot it. So: plot the price per square meter and the logarithm of price per square meter. If you want, you can remove extreme values before plotting. Look at the plots, and answer this question: what distribution looks closer to the normal one? Is it necessary to transform `y`?
+The best way to look at the distribution of the target is to plot it. So: plot the price per square meter and the logarithm of price per square meter. If you want, you can remove extreme values before plotting. Look at the plots, and answer this question: what distribution looks closer to the normal one? Is it necessary to transform `y`?
  
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -170,30 +173,31 @@ You can use `matplotlib` to make the plots, and the `percentile` function of `nu
 
 :::
 
-    ```{python}
-    #| code-fold: true
-    #| code-summary: See the solution
-    #| code-overflow: scroll
+```{python}
+#| code-fold: true
+#| code-summary: See the solution
+#| code-overflow: scroll
 
-    import numpy as np
-    import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 
-    y = trans["price_sqm"]
-    p = np.percentile(y, 99.5)
+y = trans["price_sqm"]
+p = np.percentile(y, 99.5)
 
-    fig, axes = plt.subplots(4, 1, figsize=(12, 15))
+fig, axes = plt.subplots(4, 1, figsize=(12, 12))
 
-    for ax, (data, label) in zip(axes, [(y, "Y"), (y[y <= p], "Y filtered"), (np.log(y), "log(Y)"), (np.log(y[y <= p]), "log(Y) filtered")]):
-        ax.hist(data, bins="auto", edgecolor="white", color="#334887", alpha=0.95)
-        ax.set_title(label)
-        ax.set_xlabel("Price per square meter")
-        ax.set_ylabel("Number of transactions")
+for ax, (data, label) in zip(axes, [(y, "Y"), (y[y <= p], "Y filtered"), (np.log(y), "log(Y)"), (np.log(y[y <= p]), "log(Y) filtered")]):
+    ax.hist(data, bins="auto", edgecolor="white", color="#334887", alpha=0.5)
+    ax.set_title(label)
+    ax.set_xlabel("Price per square meter")
+    ax.set_ylabel("Number of transactions")
 
-    plt.tight_layout()
-    plt.show()
-    ```
+plt.tight_layout()
+plt.show()
+```
 
-    In this case, you can see the difference between `Y` and `log(Y)` distribution : it is much closer to normal with the log transformation. Moreover, prices distribution is usually right skewed as they are more often positive, and **prices usually present extreme values that logarithm will soften**. We will therefore apply a log transformation to the target variable when constructing the training pipeline.
+
+In this case, you can see the difference between `Y` and `log(Y)` distribution : it is much closer to normal with the log transformation. Moreover, prices distribution is usually right skewed as they are more often positive, and **prices usually present extreme values that logarithm will soften**. We will therefore apply a log transformation to the target variable when constructing the training pipeline.
 
 3.  **Handle outlier or erroneous values in the target variable**
 
@@ -215,7 +219,7 @@ You can use `matplotlib` to make the plots, and the `percentile` function of `nu
 
 ```{python}
 
-fig, axes = plt.subplots(2, 1, figsize=(12, 15))
+fig, axes = plt.subplots(1, 2, figsize=(12, 15))
 
 for ax, (data, label) in zip(axes, [(y[y <= 2000], "Y below 2000€ per sqm"), (y[y <= 500], "Y below 500€ per sqm")]):
     ax.hist(data, bins="auto", edgecolor="white", color="#334887", alpha=0.95)
@@ -279,11 +283,6 @@ trans = trans[mask].reset_index(drop=True)
 n1 = trans.shape[0]
 
 print(f"{n1} rows after deterministic and statistic filtering")
-
-```
-
-```{python}
-#| include: false
 print(f'Applying these filters methods has dropped about {((n0 - n1)/n0)*100:.2f} % of the transactions.')
 ```
 
@@ -343,7 +342,7 @@ All datetime features must be preprocessed — you cannot use the `Timestamp` ty
 -   keep months feature to capture the seasonality of transactions and convert it to numeric ;
 -   keep years feature to capture years specifics patterns and convert it to numeric.
 
-You will see in the section {#sec-scikit-learn-pipeline} how preprocessing can be performed with scikit-learn.
+You will see in the @sec-scikit-learn-pipeline how preprocessing can be performed with scikit-learn.
 
 ### Now let's go : prepare the dataframe for the training
 
@@ -369,6 +368,8 @@ df = trans.drop(columns=[
 2.  For convenience, **filter the rows containing at least one missing value**. You can check pandas's `dropna` function on [their documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.dropna.html#pandas.DataFrame.dropna). Check before filtering the number of rows concerned.
 
 ```{python}
+#| output: false
+
 # Printing all rows containing at least one NA
 print(df[df.isna().any(axis=1)])
 
@@ -548,14 +549,16 @@ We will now create our first pipeline to transform the data for the training pha
 
 Go and check [scikit-learn's documentation](https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html).
 
-    ::: {.callout-tip collapse="true" title="Hint"}
 
-    For the preprocessing step, you have to :
+::: {.callout-tip collapse="true" title="Hint"}
 
-    -  applyt the new function `date_to_days` with [scikit-learn's `FunctionTransformer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.FunctionTransformer.html) ;
-    -   apply the chosen encoding method (OneHotEncoder) on categorical features.
+For the preprocessing step, you have to :
 
-    :::
+-  applyt the new function `date_to_days` with [scikit-learn's `FunctionTransformer`](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.FunctionTransformer.html) ;
+-   apply the chosen encoding method (OneHotEncoder) on categorical features.
+
+:::
+
 
 Here is the code for the new function `date_to_days` that will transform the `trans_date` variable, a `Timestamp`, to an elapsed feature (`ref_date = '2010-01-01 00:00'`). 
 Note that the output of your `date_to_days` function is a Python array and that `.to_numpy().reshape(-1, 1)` applied to a Pandas Series will transform it to the correct type.
@@ -599,16 +602,17 @@ preprocessor = ColumnTransformer(
 
 2.  **Create the Pipeline for training a RandomForestRegressor model.** Go to the [scikit-learn's documentation](https://scikit-learn.org/stable/modules/compose.html#pipelines-and-composite-estimators) on the matter to understand how it works.
 
-    ::: {.callout-tip collapse="true" title="Hint"}
 
-    For the pipeline steps, you have to :
+::: {.callout-tip collapse="true" title="Hint"}
 
-    -   create a `FunctionTransformer` instance for the `log` transformation of the target with either [`np.log`](https://numpy.org/doc/stable/reference/generated/numpy.log.html) or your own defined `log_transform` and `inverse_log_transform` functions ;
-    -   create a pipeline `rf_pipeline` with the preprocessing step `preprocessor` defined above and a RandomForestRegressor model ;
-    -   Write all hyperparameters you want to use for the `RandomForestRegressor` instance - have a tour on [the documentation](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) ;
-    -   apply this target transformation to the pipeline with [`TransformedTargetRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.compose.TransformedTargetRegressor.html#sklearn.compose.TransformedTargetRegressor).
+For the pipeline steps, you have to :
 
-    :::
+-   create a `FunctionTransformer` instance for the `log` transformation of the target with either [`np.log`](https://numpy.org/doc/stable/reference/generated/numpy.log.html) or your own defined `log_transform` and `inverse_log_transform` functions ;
+-   create a pipeline `rf_pipeline` with the preprocessing step `preprocessor` defined above and a RandomForestRegressor model ;
+-   Write all hyperparameters you want to use for the `RandomForestRegressor` instance - have a tour on [the documentation](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html) ;
+-   apply this target transformation to the pipeline with [`TransformedTargetRegressor`](https://scikit-learn.org/stable/modules/generated/sklearn.compose.TransformedTargetRegressor.html#sklearn.compose.TransformedTargetRegressor).
+
+:::
 
 ```{python}
 #| code-fold: true

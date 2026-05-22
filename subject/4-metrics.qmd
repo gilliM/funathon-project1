@@ -101,7 +101,7 @@ Features with near-zero or negative permutation importance can safely be removed
 
 In this exercise, you will generate predictions from the best RF and GB model and compute all four evaluation metrics on the test set.
 
-0. Load the RF and GB models
+0. **Load the RF and GB models.**
 
 ::: {.callout-important title="If you want to fetch back final RF and GB model" collapse="true"}
 
@@ -136,14 +136,73 @@ It will load the model,  all parameters and data necessary to keep on going thro
 
 :::
 
+```{python}
+#| echo: false
+#| output: false
 
-1.  Generate predictions on the test set using the best RF and GB models from exercise 5 and compute their residuals.
+
+import pandas as pd 
+import numpy as np
+from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
+from sklearn.compose import ColumnTransformer, TransformedTargetRegressor
+from sklearn.pipeline import Pipeline
+import requests
+from joblib import load
+import io
+
+RANDOM_STATE = 202605
+
+def log_transform(y):
+    return np.log10(y)
+
+def inverse_log_transform(y):
+    return 10 ** y
+
+y_transformer = FunctionTransformer(
+    func=log_transform,
+    inverse_func=inverse_log_transform)
+
+def date_to_days(X: pd.Series, ref_date: pd.Timestamp):
+    # converts a date to a difference to ref_date :
+    diff_dt = pd.to_datetime(X) - ref_date
+    # Extract days part from datetime object
+    diff_dt = diff_dt.dt.days
+    # Transform it from a Pandas series to a Numpy nd array, used by scikit learn for input
+    diff_dt = diff_dt.to_numpy().reshape(-1, 1)
+
+    return diff_dt
+
+date_transformer = FunctionTransformer(
+    date_to_days,
+    kw_args={"ref_date": pd.Timestamp('2010-01-01 00:00')}
+    )
+
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("cat", OneHotEncoder(handle_unknown="ignore"), ["prop_type", "prop_year_harm_10"]),  # one-hot encoder on feature
+        ("dat", date_transformer, "trans_date") # feature time since 01-01-2010
+    ],
+    remainder="passthrough"  # to keep features not transformed
+)
+
+
+X_train = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/2_preprocessing/X_train.parquet")
+X_test  = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/2_preprocessing/X_test.parquet")
+y_train = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/2_preprocessing/y_train.parquet")["price_sqm"]
+y_test  = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/2_preprocessing/y_test.parquet")["price_sqm"]
+
+# Importing fine-tuned RF and GB models
+rf_model_final = load("rf_model_final.joblib")
+gb_model_final = load("gb_model_final.joblib")
+
+```
+
+1.  **Generate predictions on the test set using the best RF and GB models** from exercise 5 and compute their residuals.
 
 ```{python}
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 # best RF
 y_pred_RF = rf_model_final.predict(X_test)
@@ -155,7 +214,8 @@ gb_residuals = y_test - y_pred_GB
 
 ```
 
-2.  Compute RMSE, MAE and R² using scikit-learn's metrics module for the comparison of RF and GB models.
+2.  **Compute RMSE, MAE and R² using scikit-learn's metrics module for the comparison of RF and GB models.**
+Save the RMSE for both models as `rmse_rf` and `rmse_gb`. 
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -169,10 +229,10 @@ You can use the function `print-metrics` made in the last section on *GB model*.
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
+
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
 
-def print_metrics(model, split, X=X_train, y=y_train):
+def print_metrics(model, split, X=X_test, y=y_test):
     """
     Print metrics for trained model
     """
@@ -187,6 +247,8 @@ models = [("RF", rf_model_final), ("GB", gb_model_final)]
 for name, model in models:
     print_metrics(model, name, X_test, y_test)
 
+rmse_rf = root_mean_squared_error(y_test, y_pred_RF)
+rmse_gb = root_mean_squared_error(y_test, y_pred_GB)
 ```
 
 > Which model would you choose, and why?
@@ -203,8 +265,7 @@ Use `mean_absolute_percentage_error` from `sklearn.metrics`. Make sure y_test co
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
-# Disponible à partir de scikit-learn >= 0.24
+
 from sklearn.metrics import mean_absolute_percentage_error
 
 mape_pct_rf = mean_absolute_percentage_error(y_test, y_pred_RF) * 100
@@ -218,7 +279,7 @@ print(f"MAPE GB: {mape_pct_gb:.2f} %")
 
 In this exercise, you will produce four diagnostic plots: a residuals distribution, a QQ-plot comparing actual and predicted quantiles, the target distribution and a feature importance plot. For each plot, take a moment to interpret what you observe.
 
-1.  Write a `residuals_distribution(residuals, rmse)` function to plot the histogram of the residuals. It takes `residuals` (a pandas Series) and `rmse` (a float), along with `ax`, `label` and `color` parameters for overlay plotting. 
+1.  **Write a `residuals_distribution(residuals, rmse)` function to plot the histogram of the residuals.** It takes `residuals` (a pandas Series) and `rmse` (a float), along with `ax`, `label` and `color` parameters for overlay plotting. 
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -230,7 +291,7 @@ Use `matplotlib.pyplot` module to plot the distribution. You can read the docume
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
+
 import matplotlib.pyplot as plt
 
 def residuals_distribution(residuals: pd.Series, rmse: float, ax=None, label=None, color=None):
@@ -245,7 +306,7 @@ def residuals_distribution(residuals: pd.Series, rmse: float, ax=None, label=Non
     return ax
 ```
 
-2.  Plot the residuals distribution of the RF and GB models. Look at whether the histogram is centered around zero and whether it is approximately symmetric.
+2.  **Plot the residuals distribution of the RF and GB models.** Look at whether the histogram is centered around zero and whether it is approximately symmetric.
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -257,7 +318,6 @@ Pass the residuals series and the RMSE value computed in Exercise 8. The RMSE va
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 fig, ax = plt.subplots()
 residuals_distribution(rf_residuals, rmse_rf, ax=ax, label=f"RF (RMSE={rmse_rf:.3f})", color="steelblue")
@@ -265,13 +325,13 @@ residuals_distribution(gb_residuals, rmse_gb, ax=ax, label=f"GB (RMSE={rmse_gb:.
 plt.show()
 ```
 
-3.  Write a `QQplot(y_test, y_pred)` function which computes 1000 quantile points for both series and plots them against each other. The parameters are `y_test`, `y_pred`, pandas series of observed and predicted target and the same parameters that question 1. for overlay plotting. The function should return the plot. 
+3.  **Write a `QQplot(y_test, y_pred)` function which computes 1000 quantile points for both series and plots them against each other.** The parameters are `y_test`, `y_pred`, pandas series of observed and predicted target and the same parameters that question 1. for overlay plotting. The function should return the plot. 
 
 ```{python}
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
+
 import numpy as np
 
 def QQplot(y_test: pd.Series, y_pred: pd.Series, ax=None, label=None, color=None):
@@ -298,7 +358,7 @@ def QQplot(y_test: pd.Series, y_pred: pd.Series, ax=None, label=None, color=None
 
 ```
 
-4.  Plot the QQ plot comparing the quantiles of the actual and predicted distributions for RF and GB models. Check whether the points align closely along the diagonal, especially in the tails.
+4.  **Plot the QQ plot comparing the quantiles of the actual and predicted distributions for RF and GB models.** Check whether the points align closely along the diagonal, especially in the tails.
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -310,7 +370,6 @@ Points well above the diagonal in the upper tail indicate that the model underes
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 fig, ax = plt.subplots()
 QQplot(y_test, y_pred_RF, ax=ax, label="Random Forest", color="steelblue")
@@ -320,13 +379,12 @@ plt.show()
 
 > How does the gradient boosting model compare visually with the random forest?
 
-5. Define a `target_distribution()` function to plot the distribution of the parameter `y`, a pandas Serie.
+5. **Define a `target_distribution()` function to plot the distribution of the parameter `y`, a pandas Serie.**
 
 ```{python}
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 def target_distribution(y: pd.Series):
     y_sorted = np.sort(y)
@@ -341,7 +399,7 @@ def target_distribution(y: pd.Series):
 
 ```
 
-6.  Plot and compare the target distributions for the actual test values and the predicted values side by side.
+6.  **Plot and compare the target distributions for the actual test values and the predicted values side by side.**
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -353,7 +411,6 @@ Call it twice — once for `y_test` and once for `y_pred`. Display both figures.
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 fig_actual = target_distribution(y_test)
 plt.title("Target distribution — actual values")
@@ -369,10 +426,12 @@ plt.show()
 ```
 
 
-::: {.callout-tip}
-If you want to plot both plots on a single figure, you can adapt the function : 
+::: {.callout-tip collapse="true"}
+
+If you want to **plot both plots on a single figure**, you can adapt the function : 
 
 ```{python}
+
 def plot_combined_distribution(y_test: pd.Series, y_pred: pd.Series, ax=None, label=None, color=None, show_actual=True):
     """
     Plots the target distributions of actual and predicted values on the same graph.
@@ -417,7 +476,6 @@ Use `permutation_importance` function from scikit-learn. See [here](https://scik
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 from sklearn.inspection import permutation_importance
 
@@ -440,13 +498,12 @@ def calculate_importance(X_test, y_test, RANDOM_STATE, final_rf, SCORING):
     return importances
 ```
 
-8.  Write a `permutation_importance()` function to plot the bar chart of features importance. 
+8.  **Write a `permutation_importance()` function to plot the bar chart of features importance.**
 
 ```{python}
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 def importance_plot(importances):
     """
@@ -462,7 +519,7 @@ def importance_plot(importances):
 
 ```
 
-9.  Compute the permutation importance and plot the top 20 most important features.
+9.  **Compute the permutation importance and plot the top 20 most important features.**
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -474,7 +531,6 @@ Calculate the importance with the train set and the final RF model. The `SCORING
 #| code-fold: true
 #| code-summary: See the solution
 #| code-overflow: scroll
-#| eval: false
 
 score = "r2"
 
