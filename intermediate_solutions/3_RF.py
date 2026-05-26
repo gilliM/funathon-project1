@@ -236,7 +236,7 @@ def rf_error_oob_plot(X_train,
 oob_error_ntrees = rf_error_oob_plot(X_train=X_train,
                                      y_train=y_train,
                                      subsample=0.1,
-                                     min_estimators=5,
+                                     min_estimators=15,
                                      max_estimators=150,
                                      metric="r2")
 oob_error_ntrees

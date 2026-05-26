@@ -5,14 +5,14 @@
 import duckdb
 import os
 
-RANDOM_STATE = 202506
+RANDOM_STATE = 202605
 
 # Create a non-persistent connection (the database exists only while the connection is alive and disappears when it is closed)
 con = duckdb.connect(database=":memory:")
 
 # %%
 
-# We load all transactions made in France between 2010 and 2022
+# We load all transactions made in France between 2010 and 2024
 trans = con.sql(
     """
         SELECT * FROM read_parquet('https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/1_input/transactions_EN.parquet')

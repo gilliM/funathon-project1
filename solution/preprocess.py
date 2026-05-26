@@ -25,7 +25,7 @@ def load_data():
         """
     )
 
-    # We load all transactions made in France between 2010 and 2022
+    # We load all transactions made in France between 2010 and 2024
     trans = con.sql(
         """
             SELECT * FROM read_parquet('s3://projet-funathon/2026/project1/data/1_input/transactions_EN.parquet')

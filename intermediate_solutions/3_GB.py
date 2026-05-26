@@ -356,7 +356,7 @@ def build_feature_dict(loc_x, loc_y, fare_a, prop_type, feature_dict=None):
     If `feature_dict` is provided, it is returned unchanged.
     Otherwise, a default dict is built from the required arguments.
     Args:
-        loc_x, loc_y : ()
+        loc_x, loc_y : floats
     """
     if feature_dict is not None:
         return feature_dict

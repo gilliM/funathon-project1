@@ -122,7 +122,7 @@ model = TransformedTargetRegressor(
 
 :::
 
-1. **Load the train and test datasets.** For convience and for a start, drop categorical and date feature `prop_type` and `trans_date`. 
+1. **Load the train and test datasets.** For convenience and for a start, drop categorical and date feature `prop_type` and `trans_date`. 
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
@@ -445,7 +445,7 @@ You can select the number of trees (`n_estimators`) now, with the OOB error plot
 oob_error_ntrees = rf_error_oob_plot(X_train=X_train,
                                      y_train=y_train,
                                      subsample=0.1,
-                                     min_estimators=5,
+                                     min_estimators=15,
                                      max_estimators=150,
                                      metric="r2")
 oob_error_ntrees
@@ -587,7 +587,7 @@ Congrats ! You have optimized your RF model. Now, you need to evaluate its accur
 
 # Exercise 6: Evaluate the final Random Forest model
 
-## Part 1 : Calcuate the evaluation metrics
+## Part 1 : Calculate the evaluation metrics
 
 ::: {.callout-important title="If you're stuck - fetch back final RF model"}
 
@@ -833,7 +833,7 @@ Congrats 🎉! In this section, you have successfully
 - seen the foundations of random forests models, 
 - trained a `RandomForestRegressor` with scikit-learn, 
 - optimized the `RandomForestRegressor` parameters through a gridsearch and cross-validation,
-- and finally, evaluated a random Forest model for price per square meter predictions with the RMSE and MAE metrics.
+- and finally, evaluated a random forest model for price per square meter predictions with the RMSE and MAE metrics.
 
 You can now have a look at the [gradient boosting model](3-GB_model.qmd).
 Once you have trained both model, you can have a closer look at metrics with the [metrics section](4-metrics.qmd).  
