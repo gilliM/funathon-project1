@@ -64,7 +64,7 @@ plt.show()
 
 # %%
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 15))
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
 for ax, (data, label) in zip(axes, [(y[y <= 2000], "Y below 2000€ per sqm"), (y[y <= 500], "Y below 500€ per sqm")]):
     ax.hist(data, bins="auto", edgecolor="white", color="#334887", alpha=0.95)
