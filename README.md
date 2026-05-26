@@ -129,16 +129,16 @@ French version of the data is stored in two files in the `projet-funathon/2026/p
 The script to convert French labelled data to English is stored in `temp/0_generate_input.py`.
 
 ## Admin 
-They are **two sources of truth** in the folder : 
-- the Qmd files
+They are **two sources of truth (where the data science is done)** in the folder : 
+- the Qmd files;
 - the scripts in the solution folder. 
 
 A script transforms qmd files into scripts that will be used. 
 
 ### Extract code from QMD to interim solutions
 A script transforms .qmd files from `subject/file.qmd` into `intermediate_solutions/script.py`. 
-The script extracts all code in the listed qmd files that are in **executable code cells**, meaning starting with the exact set of character: \`\`\`\{python.
-Code cell starting with \`\`\` python for example won't be pasted into the intermediate solution scripts.
+The script extracts all code in the listed qmd files that are in **executable code cells**, meaning starting with the exact set of character: `\`\`\`\{python`.
+Code cell starting with ` \`\`\` python` for example won't be pasted into the intermediate solution scripts.
 
 To run it : 
 
@@ -152,7 +152,12 @@ The `extract_all.sh` can also test if the script run properly.
 To do so, pass on a `true` argument to the script. Any other argument (and by default, none) will not test the scripts.
 
 ### Store back up data
-Back up data are generated and stored when running the solution
+Back up data is generated using the admin/save_data.py script. 
+It depends on the interim scripts : **these scripts need to be up to date for back up models to work properly**.  
+It also uses path generator stored in the `solution/utils` functions
+
+To run a back up script, do it with `uv run solution/admin/save_data.py`. 
+Default path of the script that generates the data is `intermediate_solutions/2_preprocessing.py`.
 
 ###  Store back up models
 Back up models are generated using the admin/save_models.py script. 
@@ -174,6 +179,16 @@ To run the solution, run `uv run solution/main.py`.
 **This script runs all subscripts, logs models to MLFlow, updates data and back-up models in the S3 storage. It doesn't launch a local API.**
 
 To **launch a local API**, run `uv run uvicorn solution.api:app --reload`. You need to have your models stored in MLFlow for it to run properly.
+
+## Check list 
+- Update your QMD files and make sure the cells work from there; 
+- Update the solution in the `solution/` folder;
+- extract and test code using `bash solution/admin/extract_all.sh true`;
+- commit the updated interim scripts;
+- generate back-up data with `uv run solution/admin/save_data.py`;
+- generate back-up models with `uv run solution/admin/save_models.py intermediate_solutions/3_RF.py rf_model_final rf_model.joblib && uv run solution/admin/save_models.py intermediate_solutions/3_GB.py gb_model_final gb_model.joblib`;
+- push to github. 
+
 
 ## Contributing
 
