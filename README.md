@@ -181,6 +181,7 @@ To run the solution, run `uv run solution/main.py`.
 To **launch a local API**, run `uv run uvicorn solution.api:app --reload`. You need to have your models stored in MLFlow for it to run properly.
 
 ## Check list 
+You need to follow the next steps **in this order** :
 - Update your QMD files and make sure the cells work from there; 
 - Update the solution in the `solution/` folder;
 - Test the solution by running `uv run solution/main.py`;
