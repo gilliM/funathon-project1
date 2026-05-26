@@ -191,6 +191,8 @@ You need to follow the next steps **in this order** :
 - generate back-up models with `uv run solution/admin/save_models.py intermediate_solutions/3_RF.py rf_model_final rf_model.joblib && uv run solution/admin/save_models.py intermediate_solutions/3_GB.py gb_model_final gb_model.joblib`;
 - push to github. 
 
+## Before rendering
+You need to have up-to-date back-up date and back-up models when rendering. 
 
 ## Contributing
 

@@ -199,7 +199,7 @@ model = mlflow.sklearn.load_model(MODEL_URI)
 4. (*optionnal*) We will now write the prediction endpoint. To do so, **add a `/predict` endpoint** in you  file `api.py` with the following characteristics: 
 
 - it takes as input a dictionary of features to run the prediction on;
-- Transform the input data into a panda's dataframe; 
+- Transform the input data into a pandas' dataframe; 
 - Make sure that the data follows the same order as in `X_test` by using the `model.feature_names_in_` that gives back the list of features names the model was trained on;
 - Transform `prop_type` into categorical data and `trans_date` into datetime data, as expected by the model; 
 - Store the floor area;
