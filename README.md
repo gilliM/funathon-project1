@@ -183,6 +183,7 @@ To **launch a local API**, run `uv run uvicorn solution.api:app --reload`. You n
 ## Check list 
 - Update your QMD files and make sure the cells work from there; 
 - Update the solution in the `solution/` folder;
+- Test the solution by running `uv run solution/main.py`;
 - extract and test code using `bash solution/admin/extract_all.sh true`;
 - commit the updated interim scripts;
 - generate back-up data with `uv run solution/admin/save_data.py`;
