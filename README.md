@@ -129,6 +129,13 @@ French version of the data is stored in two files in the `projet-funathon/2026/p
 The script to convert French labelled data to English is stored in `temp/0_generate_input.py`.
 
 ## Admin 
+They are **two sources of truth** in the folder : 
+- the Qmd files
+- the scripts in the solution folder. 
+
+A script transforms qmd files into scripts that will be used. 
+
+### Extract code from QMD to interim solutions
 A script transforms .qmd files from `subject/file.qmd` into `intermediate_solutions/script.py`. 
 The script extracts all code in the listed qmd files that are in **executable code cells**, meaning starting with the exact set of character: \`\`\`\{python.
 Code cell starting with \`\`\` python for example won't be pasted into the intermediate solution scripts.
@@ -143,6 +150,17 @@ bash solution/admin/extract_all.sh true   # extract and testing scripts
 
 The `extract_all.sh` can also test if the script run properly. 
 To do so, pass on a `true` argument to the script. Any other argument (and by default, none) will not test the scripts.
+
+### Store back up data
+Back up data are generated and stored when running the solution
+
+###  Store back up models
+Back up models are generated using the admin/save_models.py script. 
+It depends on the interim scripts : **these scripts need to be up to date for back up models to work properly**.  
+To run a back up script, do it with `uv run solution/admin/save_models.py intermediate_solutions/3_RF.py rf_model_final rf_model.joblib` : 
+- `intermediate_solutions/3_RF.py`: is the script to run where the models are generated. 
+- `rf_model_final`: is the name in the script of the model to store
+- `rf_model.joblib`: is the name of the back up in the S3
 
 ## Solution
 The solution is coded with more advanced set-up that haven't been covered in the tutorial. 
