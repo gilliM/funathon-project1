@@ -78,6 +78,11 @@ def store_datasets(datasets_to_store: dict):
             data.to_parquet(file_out, index=True)
 
 
+def upload_file_s3(file_path: str, s3_name: str):
+    fs = set_s3fs()
+    fs.put(file_path, generate_file_path_s3_models(s3_name))
+
+
 def store_model_mlflow_s3(model_uri: str, s3_name: str):
     # ── Load GB from MLFlow ────────────────────────────────────
     fs = set_s3fs()

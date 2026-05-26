@@ -1,5 +1,8 @@
 *.html
 
+# Temp file
+temp/
+
 # models
 *.joblib
 
