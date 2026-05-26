@@ -86,7 +86,7 @@ gb_baseline.fit(X_train, y_train)
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
 
 
-def print_metrics(model, split, X=X_train, y=y_train):
+def print_metrics(model, split, X, y):
     """
     Print metrics for trained model
     """

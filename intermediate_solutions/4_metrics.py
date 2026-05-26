@@ -77,7 +77,7 @@ gb_residuals = y_test - y_pred_GB
 
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
 
-def print_metrics(model, split, X=X_test, y=y_test):
+def print_metrics(model, split, X, y):
     """
     Print metrics for trained model
     """

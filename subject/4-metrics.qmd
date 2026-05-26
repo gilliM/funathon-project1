@@ -7,7 +7,7 @@ format:
     number-sections: true
 ---
 
-Training a model is only half the work. Before drawing any conclusions or deploying to production, you need to rigorously assess its quality: how large are the errors, are they evenly distributed, which features drive the predictions and how does the model compare to alternatives? This section covers the full evaluation process for ensemble models, applied to the Random Forest and Gradian Boosting trained in the previous exercises.
+Training a model is only half the work. Before drawing any conclusions or deploying to production, you need to rigorously assess its quality: how large are the errors, are they evenly distributed, which features drive the predictions and how does the model compare to alternatives? This section covers the full evaluation process for ensemble models, applied to the Random Forest and Gradient Boosting trained in the previous exercises.
 
 Before evaluating our trained models, you will discover some metrics and plots to measure the quality of the predictions.
 
@@ -225,7 +225,7 @@ Save the RMSE for both models as `rmse_rf` and `rmse_gb`.
 
 Import `root_mean_squared_error`, `mean_absolute_error` and `r2_score` from `sklearn.metrics`. You can see the documentation of `sklearn.metrics` [here](https://scikit-learn.org/stable/api/sklearn.metrics.html).
 
-You can use the function `print-metrics` made in the last section on *GB model*.
+You can use the function `print_metrics` made in the last section on *GB model*.
 
 :::
 
@@ -236,7 +236,7 @@ You can use the function `print-metrics` made in the last section on *GB model*.
 
 from sklearn.metrics import root_mean_squared_error, mean_absolute_error, r2_score
 
-def print_metrics(model, split, X=X_test, y=y_test):
+def print_metrics(model, split, X, y):
     """
     Print metrics for trained model
     """
@@ -527,7 +527,7 @@ def importance_plot(importances):
 
 ::: {.callout-tip collapse="true" title="Hint"}
 
-Calculate the importance with the train set and the final RF model. The `SCORING` argument should match the metric used during training (e.g. `"r2"`).
+Calculate the importance with the test set and the final RF model. The `SCORING` argument should match the metric used during training (e.g. `"r2"`).
 
 :::
 
