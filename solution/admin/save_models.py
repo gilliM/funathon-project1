@@ -15,6 +15,7 @@ model_name = "rf_model_final"
 s3_name = "rf_model_test.joblib"
 
 # Step 1: Copy 3_RF.py to temp.py
+os.makedirs("temp", exist_ok=True)
 shutil.copy(input_script, "temp/temp.py")
 
 # Step 2: Add lines to temp script to dump model 
