@@ -1,5 +1,5 @@
 
-## Exercise 1: Understanding data inputs
+# Exercise 1: Understanding data inputs
 # %%
 
 import duckdb
@@ -31,6 +31,8 @@ trans.describe() # statistics (count, mean, std, min, max, quartiles)
 trans.head(n=5) # first n rows
 trans.isnull().sum() # nb of NaN per column
 trans.notnull().all() # column with no NaN?
+trans.isna().sum()
+
 
 # %%
 import pandas as pd

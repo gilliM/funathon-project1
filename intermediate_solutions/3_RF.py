@@ -2,6 +2,8 @@
 # Exercise 4: Train your first Random Forest model
 # %%
 
+TEST MIB
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
