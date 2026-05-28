@@ -2,7 +2,7 @@
 # Exercise 4: Train your first Random Forest model
 # %%
 
-TEST MIB
+#TEST MIB
 
 import pandas as pd
 import numpy as np
@@ -11,7 +11,7 @@ from sklearn.compose import ColumnTransformer, TransformedTargetRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
 
-RANDOM_STATE = 202605
+RANDOM_STATE = 20260528
 
 
 def log_transform(y):
@@ -70,6 +70,7 @@ rf_pipeline = Pipeline([
 model = TransformedTargetRegressor(
     regressor=rf_pipeline,
     transformer=y_transformer
+    #transformer=lambda x:x
 )
 
 # %%
@@ -93,7 +94,9 @@ rf = RandomForestRegressor(
     n_estimators=50,
     max_features="sqrt",
     min_samples_leaf=10,
-    oob_score=True # for calculating total oob error for the RF
+    oob_score=True,  # for calculating total oob error for the RF
+    n_jobs=-1,
+    random_state=RANDOM_STATE
 )
 
 # %%
@@ -251,13 +254,15 @@ X_test  = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/pr
 y_train = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/2_preprocessing/y_train.parquet")["price_sqm"]
 y_test  = pd.read_parquet("https://minio.lab.sspcloud.fr/projet-funathon/2026/project1/data/2_preprocessing/y_test.parquet")["price_sqm"] 
 
+X_train.to_csv('xtrain.csv')
+
 
 # %%
 
 param_grid = {
     "regressor__RF__n_estimators": [80],
     "regressor__RF__max_features": ["sqrt"],
-    "regressor__RF__min_samples_leaf": [40, 50, 75],
+    "regressor__RF__min_samples_leaf": [75],
     "regressor__RF__max_depth" : [8, 13],
 }
 
@@ -362,7 +367,7 @@ def build_feature_dict(loc_x, loc_y, fare_a, prop_type, feature_dict=None):
         "prop_year_harm_10": 1870,
         "prop_loc_x": loc_x,
         "prop_loc_y": loc_y,
-        "has_cheating": 0,
+        "has_cheating": 1,
         "has_elec": 2,
         "has_elevator": 2,
         "has_gas": 2,
@@ -370,7 +375,7 @@ def build_feature_dict(loc_x, loc_y, fare_a, prop_type, feature_dict=None):
         "has_rchute": 0,
         "has_water": 2,
         "n_floors": 6,
-        "n_bath": 0,
+        "n_bath": 1,
         "n_eatr": 0,
         "n_kit8": 1,
         "n_kit9": 0,
@@ -378,7 +383,7 @@ def build_feature_dict(loc_x, loc_y, fare_a, prop_type, feature_dict=None):
         "n_attic": 1,
         "n_basmt": 1,
         "n_garage": 0,
-        "n_pool": 0,
+        "n_pool": 1,
         "n_mrooms": 3,
         "n_otherannex": 0,
         "n_rooms": 4,
@@ -388,7 +393,7 @@ def build_feature_dict(loc_x, loc_y, fare_a, prop_type, feature_dict=None):
         "n_terrace": 1,
         "n_washr": 1,
         "n_wc": 1,
-        "nth_floor": 3,
+        "nth_floor": 6,
         "s_land_agri": 0,
         "s_land_artif": 0,
         "s_land_nat": 0,
@@ -398,11 +403,18 @@ def build_feature_dict(loc_x, loc_y, fare_a, prop_type, feature_dict=None):
 # %%
 
 prediction_examples = {
-    "adresse1" : {"nom" : "88 avenue Verdier 92120 Montrouge", "fare_a" : 80, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
+    
+    "adresse11" : {"nom" : "88 avenue Verdier 92120 Montrouge1", "fare_a" : 60, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
+    "adresse12" : {"nom" : "88 avenue Verdier 92120 Montrouge2", "fare_a" : 80, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
+    "adresse13" : {"nom" : "88 avenue Verdier 92120 Montrouge3", "fare_a" : 100, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
+    "adresse14" : {"nom" : "88 avenue Verdier 92120 Montrouge4", "fare_a" : 120, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
+    "adresse15" : {"nom" : "88 avenue Verdier 92120 Montrouge5", "fare_a" : 140, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
+    "adresse16" : {"nom" : "88 avenue Verdier 92120 Montrouge6", "fare_a" : 160, "loc_x": 2.244608, "loc_y": 48.8865792, "prop_type" : 2},
     "adresse2" : {"nom" : "3 rue Sadi Carnot 78120 Rambouillet", "fare_a" : 140, "loc_x": 1.8300153, "loc_y": 48.6431721, "prop_type" : 1},
     "adresse3" : {"nom" : "1 rue des arts 92700 Colombes", "fare_a" : 35, "loc_x": 2.2410483, "loc_y": 48.9109437, "prop_type" : 2},
     "adresse4" : {"nom" : "152 Rue de Sèvres 75015 Paris", "fare_a" : 93, "loc_x": 2.3146301, "loc_y": 48.8462097, "prop_type" : 2},
-    "adresse5" : {"nom" : "3 rue Paul Doumer 93100 Montreuil", "fare_a" : 105, "loc_x": 2.45626, "loc_y": 48.861197, "prop_type" : 1},  
+    "adresse5" : {"nom" : "3 rue Paul Doumer 93100 Montreuil", "fare_a" : 105, "loc_x": 2.45626, "loc_y": 48.861197, "prop_type" : 1},
+    "adresse42" : {"nom" : "Elfie", "fare_a" : 99, "loc_x": 2.330717, "loc_y": 48.852055, "prop_type" : 2},   
 }
 
 
@@ -446,3 +458,5 @@ for _, row in results.iterrows():
         f"i.e. a total of about {row['total_price']:,.0f} €."
     )
 
+
+# %%
